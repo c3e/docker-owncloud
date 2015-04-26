@@ -1,0 +1,7 @@
+FROM owncloud:latest
+MAINTAINER Hauro <>
+
+VOLUME /var/www/html/owncloud/config
+VOLUME /var/www/html/owncloud/data
+
+ENTRYPOINT ["/bin/true"]

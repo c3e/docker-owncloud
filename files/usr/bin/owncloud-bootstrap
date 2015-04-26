@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# Create log files (to prevent errors)
+touch /var/log/nginx/access.log
+touch /var/log/nginx/error.log
+touch /var/log/owncloud/cron.log
+
+# Correct permissions of volumes
+chown www-data:www-data \
+  /var/www/html/owncloud/config \
+  /var/www/html/owncloud/data \
+  /var/tmp/owncloud
+
+# Start everything
+/usr/bin/supervisord -c /etc/supervisor/supervisord.conf

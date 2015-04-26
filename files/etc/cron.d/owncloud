@@ -1,0 +1,1 @@
+*/15 * * * *   root   /usr/bin/php -f /var/www/html/owncloud/cron.php >> /var/log/owncloud/cron.log 2>&1
