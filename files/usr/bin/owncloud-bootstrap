@@ -1,5 +1,5 @@
 #!/bin/sh
-
+#test
 # Create log files (to prevent errors)
 touch /var/log/nginx/access.log
 touch /var/log/nginx/error.log
