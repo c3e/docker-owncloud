@@ -1,5 +1,20 @@
 #!/bin/sh
-#test
+
+# Create SSL-Certificates on First Boot
+
+if ! [ -f /etc/nginx/SSL/cert.key ]
+  then 
+     rm -r /etc/nginx/SSL
+     cd /etc/nginx/
+     mkdir SSL
+     cd SSL
+     openssl genrsa -des3 -out cert.key 1024
+     openssl req -new -key cert.key -out cert.csr
+     cp cert.key cert.key.org
+     openssl rsa -in cert.key.org -out cert.key
+     openssl x509 -req -days 365 -in cert.csr -signkey cert.key -out cert.crt
+fi
+
 # Create log files (to prevent errors)
 touch /var/log/nginx/access.log
 touch /var/log/nginx/error.log
