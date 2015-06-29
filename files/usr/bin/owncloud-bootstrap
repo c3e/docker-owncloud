@@ -8,7 +8,7 @@ if ! [ -f /etc/nginx/SSL/cert.key ]
      cd /etc/nginx/
      mkdir SSL
      cd SSL
-     openssl genrsa -des3 -out cert.key 4096
+     openssl genrsa -out cert.key 4096
      openssl req -new -key cert.key -out cert.csr
      cp cert.key cert.key.org
      openssl rsa -in cert.key.org -out cert.key
