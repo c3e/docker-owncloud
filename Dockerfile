@@ -41,16 +41,9 @@ RUN \
 
 RUN \
   mkdir -p /var/www/html /var/log/owncloud \
-  && curl -L -o /tmp/owncloud.tar.bz2 https://download.owncloud.org/community/owncloud-8.0.2.tar.bz2 \
-  && echo "46c73b6ae3841e856d139537d21e1c7029c64d79fd7c45c794e27cb1469d7f01  /tmp/owncloud.tar.bz2" | sha256sum -c \
+  && curl -L -o /tmp/owncloud.tar.bz2 https://download.owncloud.org/community/owncloud-8.1.0.tar.bz2 \
+  && echo "3d308d3b3d7083ca9fbfdde461ccd4bb66b7fb36f922ade5e6baf1b03bf174ee  /tmp/owncloud.tar.bz2" | sha256sum -c \
   && tar -C /var/www/html -xjvf /tmp/owncloud.tar.bz2 \
-## old auto patch config
-##  && ( \
-##    cd /var/www/html/owncloud \
-##    && curl https://github.com/chris-se/owncloud-core/commit/1377ebc7e9b9a5bed36b5a1ca8da2c6ef35eb74a.patch | patch -p1 \
-##    && curl https://github.com/chris-se/owncloud-core/commit/535757bc427d91a6b96b7b3a145d83e1fefef43a.patch | patch -p1 \
-##    ) \
-##
   && mkdir -p /var/www/html/owncloud/data /var/tmp/owncloud \
   && find /var/www/html/owncloud/ -type f -print0 | xargs -0 chmod 0640 \
   && find /var/www/html/owncloud/ -type d -print0 | xargs -0 chmod 0750 \
@@ -68,11 +61,12 @@ RUN \
   && ln -s ../sites-available/owncloud /etc/nginx/sites-enabled/owncloud \
   && chmod +x /usr/bin/owncloud-bootstrap
 
-## adds newest version of calendar app
- RUN \
-  curl -L -o /tmp/calendar.tar.gz https://github.com/owncloud/calendar/archive/v8.0.3RC3.tar.gz \
-  && tar -C /var/www/html/owncloud/apps -xvf /tmp/calendar.tar.gz \
-  && mv /var/www/html/owncloud/apps/calendar-8.0.3RC3 /var/www/html/owncloud/apps/calendar \
+# install calendar: https://github.com/owncloud/calendar/releases/download/v0.7.2/calendar.zip
+
+RUN \ 
+  curl -L -o /tmp/calendar.zip https://github.com/owncloud/calendar/releases/download/v0.7.2/calendar.zip \
+  && apt-get update && apt-get install -y zip \
+  && unzip /tmp/calendar.zip -d /var/www/html/owncloud/apps \
   && chown -R www-data:www-data /var/www/html/owncloud/apps/calendar
 
 EXPOSE 80
@@ -80,4 +74,8 @@ EXPOSE 80
 # Call the bootstrop script. It fixes some permission problems if you
 # use volumes in data containers. (And you really should, FWIW.)
 # ENTRYPOINT  ["owncloud-bootstrap"]
+
+
+CMD ["/bin/bash"]
+
 
