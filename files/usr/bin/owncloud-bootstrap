@@ -27,4 +27,14 @@ chown www-data:www-data \
   /var/tmp/owncloud
 
 # Start everything
-/usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+# /usr/bin/supervisord -c /etc/supervisor/supervisord.conf
+
+service nginx stop
+service php5-fpm stop
+service cron stop
+
+service php5-fpm restart
+service nginx restart
+service cron restart
+
+/bin/bash

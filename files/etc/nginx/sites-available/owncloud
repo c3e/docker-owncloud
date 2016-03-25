@@ -1,9 +1,14 @@
 upstream php-handler {
+	# old socket conf
 	server unix:/var/run/php5-fpm.sock;
+	
+	# try port
+	#fastcgi_pass 127.0.0.1:9000;
 }
 
 server {
 	listen 443 ssl; 
+	listen [::]:443 ipv6only=on default_server;
 
 	keepalive_timeout   70;
 

@@ -21,10 +21,10 @@ RUN dpkg-divert --local --rename --add /sbin/initctl && ln -sf /bin/true /sbin/i
 #
 # TODO: Replace xcache with apcu? (Not in Wheezy. Could be done in Jessie.)
 #
-RUN \
-  apt-get update \
-  && DEBIAN_FRONTEND=noninteractive \
-   apt-get install -y \
+RUN echo "helloworld"
+
+RUN  apt-get update && DEBIAN_FRONTEND=noninteractive
+RUN  apt-get install -y \
     cron curl bzip2 supervisor \
     patch \
     nginx-light \
@@ -37,12 +37,20 @@ RUN \
     php5-imagick \
     php5-fpm \
     smbclient \
-  && rm -rf /var/lib/apt/lists/*
+    \
+    htop net-tools less vim
+
+RUN rm -rf /var/lib/apt/lists/*
 
 RUN \
   mkdir -p /var/www/html /var/log/owncloud \
+  
   && curl -L -o /tmp/owncloud.tar.bz2 https://download.owncloud.org/community/owncloud-8.1.0.tar.bz2 \
   && echo "3d308d3b3d7083ca9fbfdde461ccd4bb66b7fb36f922ade5e6baf1b03bf174ee  /tmp/owncloud.tar.bz2" | sha256sum -c \
+  
+  #&& curl -L -o /tmp/owncloud.tar.bz2 https://download.owncloud.org/community/owncloud-9.0.0.tar.bz2 \
+  #&& echo "d16737510a77a81489f7c4d5e19b0756fa2ea1c5081ba174b0fec0f00da3a77c  /tmp/owncloud.tar.bz2" | sha256sum -c \
+  
   && tar -C /var/www/html -xjvf /tmp/owncloud.tar.bz2 \
   && mkdir -p /var/www/html/owncloud/data /var/tmp/owncloud \
   && find /var/www/html/owncloud/ -type f -print0 | xargs -0 chmod 0640 \
@@ -53,27 +61,29 @@ RUN \
   && rm -f /tmp/owncloud.tar.bz2
 
 # Install additional files into container root
-ADD files/ /
+ADD files/etc /etc/
 
-RUN \
-  ln -s ../mods-available/owncloud.ini /etc/php5/conf.d/90-owncloud.ini \
-  && rm -f /etc/nginx/sites-enabled/default \
-  && ln -s ../sites-available/owncloud /etc/nginx/sites-enabled/owncloud \
-  && chmod +x /usr/bin/owncloud-bootstrap
+ADD files/usr /usr/
+
+RUN ln -s ../mods-available/owncloud.ini /etc/php5/conf.d/90-owncloud.ini
+RUN rm -f /etc/nginx/sites-enabled/default
+RUN ln -s ../sites-available/owncloud /etc/nginx/sites-enabled/owncloud
+RUN chmod +x /usr/bin/owncloud-bootstrap
 
 # install calendar: https://github.com/owncloud/calendar/releases/download/v0.7.2/calendar.zip
 
-RUN \ 
-  curl -L -o /tmp/calendar.zip https://github.com/owncloud/calendar/releases/download/v0.7.2/calendar.zip \
-  && apt-get update && apt-get install -y zip \
-  && unzip /tmp/calendar.zip -d /var/www/html/owncloud/apps \
-  && chown -R www-data:www-data /var/www/html/owncloud/apps/calendar
+#RUN apt-get update && apt-get install -y tar
 
-EXPOSE 80
+#RUN curl -L -o /tmp/calendar.zip https://github.com/owncloud/calendar/releases/download/v0.7.2/calendar.zip 
+#RUN curl -L -o /tmp/calendar.tar.gz https://github.com/owncloud/calendar/releases/download/v1.0/calendar.tar.gz
+#RUN tar -zxvf /tmp/calendar.tar.gz -C /var/www/html/owncloud/apps 
+#RUN chown -R www-data:www-data /var/www/html/owncloud/apps/calendar
+
+EXPOSE 443
 
 # Call the bootstrop script. It fixes some permission problems if you
 # use volumes in data containers. (And you really should, FWIW.)
-# ENTRYPOINT  ["owncloud-bootstrap"]
+ENTRYPOINT  ["/usr/bin/owncloud-bootstrap"]
 
 
 CMD ["/bin/bash"]
